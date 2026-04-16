@@ -1,10 +1,9 @@
-
 import streamlit as st
 import pandas as pd
 import os
 import base64
 
-# ==================== פונקציה חסרה להמרת תמונה ====================
+# ==================== פונקציה להמרת תמונה ====================
 def get_image_base64(image_path):
     try:
         with open(image_path, "rb") as img_file:
@@ -119,7 +118,7 @@ def get_all_data():
 
 df_model, df_urgent = get_all_data()
 
-# ==================== פונקציה לייצור טבלת HTML  ====================
+# ==================== פונקציה לייצור טבלת HTML ====================
 def render_html_table(df, domain=None, is_urgent=False):
     if df.empty:
         st.success("אין מוסדות להצגה.")
@@ -134,13 +133,26 @@ def render_html_table(df, domain=None, is_urgent=False):
     if not is_urgent:
         def row_color(row):
             val = float(row['ממוצע משימות'])
-            limit_red = 5 if domain == 'מתמטיקה' else 2
-            limit_green = 12 if domain == 'מתמטיקה' else 6
-            color = '#fad2e1' if val < limit_red else ('#fefae0' if val < limit_green else '#d8f3dc')
+            # הגדרת רמות צביעה לפי תחום
+            if domain == 'מתמטיקה':
+                limit_red = 5
+                limit_green = 12
+            else:  # מדעים - כאן עודכן הרף ל-4
+                limit_red = 2
+                limit_green = 4 
+            
+            if val < limit_red:
+                color = '#fad2e1' # אדום בהיר
+            elif val < limit_green:
+                color = '#fefae0' # צהוב בהיר
+            else:
+                color = '#d8f3dc' # ירוק בהיר
+                
             return [f'background-color: {color}; color: black;' for _ in row]
+        
         styler = styler.apply(row_color, axis=1)
 
-    # היישור לימין והצמצום של סמל המוסד
+    # עיצוב עמודת סמל מוסד (יישור לימין ורוחב קבוע)
     styler = styler.set_properties(subset=['סמל מוסד'], **{
         'text-align': 'right', 
         'width': '80px', 
@@ -159,7 +171,7 @@ def render_html_table(df, domain=None, is_urgent=False):
             'min-width': '90px'
         })
 
-    # מוודא שגם כל הכותרות של הטבלה מיושרות לימין
+    # עיצוב כללי של הטבלה והכותרות
     styler.set_table_styles([
         {'selector': 'table', 'props': [('width', '100%'), ('direction', 'rtl'), ('border-collapse', 'collapse'), ('margin-bottom', '20px')]},
         {'selector': 'th', 'props': [('background-color', '#1D3557'), ('color', 'white'), ('padding', '8px'), ('text-align', 'right')]},
