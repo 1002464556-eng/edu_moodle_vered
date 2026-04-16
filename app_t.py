@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import os
@@ -229,3 +230,4 @@ if district:
                 st.markdown("### מדעים")
                 urg_s = df_urg_filtered[df_urg_filtered['תחום'] == 'מדעים'][['סמל מוסד', 'מוסד']]
                 render_html_table(urg_s, is_urgent=True)
+
